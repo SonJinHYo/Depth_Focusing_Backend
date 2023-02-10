@@ -60,8 +60,7 @@ class GetSegmentation(APIView):
             raise NotFound
 
     def post(self, request):
-        user = self.get_object(pk=request.data["pk"])
-        photo = Photo.objects.get(pk=len(user.photos))
+        photo = Photo.objects.get(file=request.data["file"])
         serializer = PhotoSerializer(photo)
         img_url = serializer.data["file"]
         segmentation, segmentation_info, model = predict_segmentation(img_url)
@@ -108,8 +107,7 @@ class GetBlurImage(APIView):
             raise NotFound
 
     def post(self, request):
-        user = self.get_object(1)
-        photo = Photo.objects.get(pk=request.data["pk"])
+        photo = Photo.objects.get(file=request.data["file"])
         serializer = PhotoSerializer(photo)
         label = serializer.data["labels"]
         img_url = serializer.data["file"]
