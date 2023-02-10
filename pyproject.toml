@@ -22,6 +22,7 @@ whitenoise = {extras = ["brotli"], version = "^6.3.0"}
 gunicorn = "^20.1.0"
 torch = "^1.13.1"
 pillow = "^9.4.0"
+matplotlib = "^3.6.3"
 
 [build-system]
 requires = ["poetry-core"]
