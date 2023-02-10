@@ -6,7 +6,7 @@ class Photo(models.Model):
     seg_file = models.URLField(default="")
     blured_file = models.URLField(default="")
     labels = models.JSONField(default=dict)
-    segmentation = models.BinaryField()
+    segmentation = models.BinaryField(default=b"")
     description = models.CharField(
         max_length=140,
     )
