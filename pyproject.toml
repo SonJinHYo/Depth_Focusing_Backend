@@ -20,10 +20,12 @@ dj-database-url = "^1.2.0"
 psycopg2-binary = "^2.9.5"
 whitenoise = {extras = ["brotli"], version = "^6.3.0"}
 gunicorn = "^20.1.0"
-torch = "^1.13.1"
+torch = "^1.11.0"
 pillow = "^9.4.0"
 matplotlib = "^3.6.3"
 torchvision = "^0.14.1"
+wandb = "^0.13.10"
+tqdm = "^4.64.1"
 
 [build-system]
 requires = ["poetry-core"]
