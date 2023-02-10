@@ -1,3 +1,4 @@
+from time import sleep
 import requests
 
 from django.contrib.auth import authenticate, login, logout
@@ -86,7 +87,9 @@ class LogOut(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        sleep(1)
         logout(request)
+        sleep(1)
         return Response({"ok": "Success Logout"})
 
 
