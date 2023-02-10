@@ -8,8 +8,9 @@ class PhotoSerializer(ModelSerializer):
         fields = (
             "pk",
             "file",
-            "depth_file",
             "seg_file",
+            "blured_file",
             "description",
+            "segmentation",
             "labels",
         )
