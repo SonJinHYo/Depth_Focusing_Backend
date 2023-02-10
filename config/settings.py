@@ -31,7 +31,11 @@ SECRET_KEY = env("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = "RENDER" not in os.environ
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+    "backend.depth-focusing.xyz",
+]
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
 if RENDER_EXTERNAL_HOSTNAME:
@@ -166,9 +170,15 @@ MEDIA_ROOT = "uploads"
 MEDIA_URL = "user-uploads/"
 
 
-CORS_ALLOWED_ORIGINS = ["http://127.0.0.1:3000"]
+if DEBUG:
+    CORS_ALLOWED_ORIGINS = ["http://127.0.0.1:3000"]
+    CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:3000"]
+
+else:
+    CORS_ALLOWED_ORIGINS = ["https://depth-focusing.xyz"]
+    CSRF_TRUSTED_ORIGINS = ["https://depth-focusing.xyz"]
+
 CORS_ALLOW_CREDENTIALS = True
-CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:3000"]
 
 
 GH_SECRET = env("GH_SECRET")
@@ -176,3 +186,7 @@ GH_SECRET = env("GH_SECRET")
 CF_ID = env("CF_ID")
 
 CF_TOKEN = env("CF_TOKEN")
+
+if not DEBUG:
+    SESSION_COOKIE_DOMAIN = ".depth-focusing.xyz"
+    CSRF_COOKIE_DOMAIN = ".depth-focusing.xyz"
