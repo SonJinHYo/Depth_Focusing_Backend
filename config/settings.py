@@ -182,3 +182,6 @@ GH_SECRET = env("GH_SECRET")
 CF_ID = env("CF_ID")
 
 CF_TOKEN = env("CF_TOKEN")
+
+if not DEBUG:
+    SESSION_COOKIE_DOMAIN = ".depth-focusing.xyz"
