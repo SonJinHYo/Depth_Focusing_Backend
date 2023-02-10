@@ -1,12 +1,17 @@
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 
 
 class Photo(models.Model):
     file = models.URLField()
     seg_file = models.URLField(default="")
     blured_file = models.URLField(default="")
-    labels = models.JSONField(default=dict)
-    segmentation = models.BinaryField()
+    labels_len = models.PositiveIntegerField(default=1)
+    segmentation = models.URLField(default="")
+    #     models.IntegerField(),
+    #     null=True,
+    #     blank=True,
+    # )
     description = models.CharField(
         max_length=140,
     )

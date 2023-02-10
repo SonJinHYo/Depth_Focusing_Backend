@@ -11,8 +11,8 @@ from matplotlib import cm
 
 def predict_segmentation(img_url):
     image = Image.open(requests.get(img_url, stream=True).raw)
-    image = ImageOps.exif_transpose(image) # 이미지 업로드시 회전되는 문제 해결
-    image = Image.fromarray(np.array(image)[:,:,0:3])
+    image = ImageOps.exif_transpose(image)  # 이미지 업로드시 회전되는 문제 해결
+    image = Image.fromarray(np.array(image)[:, :, 0:3])
     processor = AutoImageProcessor.from_pretrained(
         "facebook/mask2former-swin-base-coco-panoptic"
     )
@@ -28,7 +28,9 @@ def predict_segmentation(img_url):
     predicted_segmentation = processor.post_process_panoptic_segmentation(
         outputs, target_sizes=[image.size[::-1]]
     )[0]
-    predicted_segmentation["segmentation"] = np.array(predicted_segmentation['segmentation'])
+    # predicted_segmentation["segmentation"] = np.array(
+    #     predicted_segmentation["segmentation"]
+    # )
 
     return (
         predicted_segmentation["segmentation"],

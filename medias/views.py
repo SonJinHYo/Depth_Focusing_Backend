@@ -1,13 +1,13 @@
-from django.conf import settings
+import numpy as np
 import requests
+
+from django.conf import settings
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK
-import pickle
-import base64
+from rest_framework import status
 
 from users import serializers
 from users.models import User
@@ -32,7 +32,9 @@ class PhotoDetail(APIView):
         if photo.user and photo.user != request.user:
             raise PermissionDenied
         photo.delete()
-        return Response(status=HTTP_200_OK)
+        return Response(
+            status=status.HTTP_200_OK,
+        )
 
 
 class GetUploadURL(APIView):
@@ -48,10 +50,13 @@ class GetUploadURL(APIView):
         one_time_url = one_time_url.json()
         # result.get("uploadURL") : 유저에게 할당해주는 이미지 업로드용 url
         result = one_time_url.get("result")
-        return Response({"uploadURL": result.get("uploadURL")})
+        return Response(
+            {"uploadURL": result.get("uploadURL")},
+            status=status.HTTP_200_OK,
+        )
 
 
-class GetDeepLearningImage(APIView):
+class GetSegmentation(APIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self, pk):
@@ -61,16 +66,18 @@ class GetDeepLearningImage(APIView):
             raise NotFound
 
     def post(self, request):
-        user = self.get_object(1)
-        photo = Photo.objects.get(pk=request.data["pk"])
+        photo = Photo.objects.get(file=request.data["file"])
         serializer = PhotoSerializer(photo)
         img_url = serializer.data["file"]
         segmentation, segmentation_info, model = predict_segmentation(img_url)
         draw_panoptic_segmentation(model, segmentation, segmentation_info)
 
+        # 프로토타입
+        labels_len = len(segmentation_info)
+
         ### numpy array pikle 형태로 인코딩후 binary filed에 저장
-        np_bytes = pickle.dumps(segmentation)
-        np_base64 = base64.b64encode(np_bytes)
+
+        seg_url = ""
 
         one_time_url = requests.post(
             f"https://api.cloudflare.com/client/v4/accounts/{settings.CF_ID}/images/v2/direct_upload",
@@ -88,18 +95,28 @@ class GetDeepLearningImage(APIView):
         )
         result = r.json().get("result")
         seg_image_url = result.get("variants")
+        print(f"seg_image_url: {seg_image_url}")
 
         serializer = PhotoSerializer(
             photo,
-            {"seg_file": seg_image_url, "segmentation": np_base64},
+            data={
+                "seg_file": seg_image_url[0],
+                "labels_len": labels_len,
+            },
             partial=True,
         )
-
         if serializer.is_valid():
             photo = serializer.save()
             serializer = PhotoSerializer(photo)
-            print("save")
-        return
+            return Response(
+                serializer.data,
+                status=status.HTTP_200_OK,
+            )
+        else:
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
 
 class GetBlurImage(APIView):
@@ -112,14 +129,20 @@ class GetBlurImage(APIView):
             raise NotFound
 
     def post(self, request):
-        user = self.get_object(1)
-        photo = Photo.objects.get(pk=request.data["pk"])
+        # 실행을 위한 코드
+        print(request.data)
+        return Response(
+            request.data,
+            status=status.HTTP_200_OK,
+        )
+
+        photo = Photo.objects.get(file=request.data["file"])
         serializer = PhotoSerializer(photo)
-        label = serializer.data["labels"]
+        label = serializer.data["labels_len"]
         img_url = serializer.data["file"]
-        np_bytes = base64.b64decode(serializer.data["segmentation"])
-        segmentation = pickle.loads(np_bytes)
-        bluring_img(img_url, label, segmentation)
+        # np_bytes = base64.b64decode(serializer.data["segmentation"])
+        # segmentation = pickle.loads(np_bytes)
+        # bluring_img(img_url, label, segmentation)
 
         one_time_url = requests.post(
             f"https://api.cloudflare.com/client/v4/accounts/{settings.CF_ID}/images/v2/direct_upload",
@@ -143,8 +166,3 @@ class GetBlurImage(APIView):
             {"blured_file": blured_image_url},
             partial=True,
         )
-
-        if serializer.is_valid():
-            photo = serializer.save()
-            serializer = PhotoSerializer(photo)
-            print("save")

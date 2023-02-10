@@ -12,5 +12,5 @@ class PhotoSerializer(ModelSerializer):
             "blured_file",
             "description",
             "segmentation",
-            "labels",
+            "labels_len",
         )
