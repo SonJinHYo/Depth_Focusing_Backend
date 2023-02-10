@@ -185,3 +185,4 @@ CF_TOKEN = env("CF_TOKEN")
 
 if not DEBUG:
     SESSION_COOKIE_DOMAIN = ".depth-focusing.xyz"
+    CSRF_COOKIE_DOMAIN = ".depth-focusing.xyz"
