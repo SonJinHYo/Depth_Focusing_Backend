@@ -1,12 +1,12 @@
 databases:
-  - name: depth_focusing
+  - name: depth_focusing_db
     databaseName: depth_focusing
     user: depth_focusing
     region: singapore
 
 services:
   - type: web
-    name: depth_focusing
+    name: depth_focusing_backend
     env: python
     region: singapore
     buildCommand: "./build.sh"
