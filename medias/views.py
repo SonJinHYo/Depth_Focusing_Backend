@@ -16,6 +16,7 @@ from .serializers import PhotoSerializer
 from .segmentation import predict_segmentation, draw_panoptic_segmentation
 from .bluring_img import bluring_img
 
+
 class PhotoDetail(APIView):
 
     permission_classes = [IsAuthenticated]
@@ -50,7 +51,7 @@ class GetUploadURL(APIView):
         return Response({"uploadURL": result.get("uploadURL")})
 
 
-class GetSegmentation(APIView):
+class GetDeepLearningImage(APIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self, pk):
@@ -60,8 +61,8 @@ class GetSegmentation(APIView):
             raise NotFound
 
     def post(self, request):
-        user = self.get_object(pk=request.data["pk"])
-        photo = Photo.objects.get(pk=len(user.photos))
+        user = self.get_object(1)
+        photo = Photo.objects.get(pk=request.data["pk"])
         serializer = PhotoSerializer(photo)
         img_url = serializer.data["file"]
         segmentation, segmentation_info, model = predict_segmentation(img_url)
@@ -70,7 +71,6 @@ class GetSegmentation(APIView):
         ### numpy array pikle 형태로 인코딩후 binary filed에 저장
         np_bytes = pickle.dumps(segmentation)
         np_base64 = base64.b64encode(np_bytes)
-
 
         one_time_url = requests.post(
             f"https://api.cloudflare.com/client/v4/accounts/{settings.CF_ID}/images/v2/direct_upload",
@@ -95,7 +95,11 @@ class GetSegmentation(APIView):
             partial=True,
         )
 
-        return Response(serializer.data)
+        if serializer.is_valid():
+            photo = serializer.save()
+            serializer = PhotoSerializer(photo)
+            print("save")
+        return
 
 
 class GetBlurImage(APIView):
@@ -115,7 +119,7 @@ class GetBlurImage(APIView):
         img_url = serializer.data["file"]
         np_bytes = base64.b64decode(serializer.data["segmentation"])
         segmentation = pickle.loads(np_bytes)
-        bluring_img(img_url,label,segmentation)
+        bluring_img(img_url, label, segmentation)
 
         one_time_url = requests.post(
             f"https://api.cloudflare.com/client/v4/accounts/{settings.CF_ID}/images/v2/direct_upload",
@@ -140,4 +144,7 @@ class GetBlurImage(APIView):
             partial=True,
         )
 
-        return Response(serializer.data)
+        if serializer.is_valid():
+            photo = serializer.save()
+            serializer = PhotoSerializer(photo)
+            print("save")
