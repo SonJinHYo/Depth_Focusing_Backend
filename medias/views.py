@@ -50,7 +50,7 @@ class GetUploadURL(APIView):
         return Response({"uploadURL": result.get("uploadURL")})
 
 
-class GetDeepLearningImage(APIView):
+class GetSegmentation(APIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self, pk):
@@ -60,8 +60,8 @@ class GetDeepLearningImage(APIView):
             raise NotFound
 
     def post(self, request):
-        user = self.get_object(1)
-        photo = Photo.objects.get(pk=request.data["pk"])
+        user = self.get_object(pk=request.data["pk"])
+        photo = Photo.objects.get(pk=len(user.photos))
         serializer = PhotoSerializer(photo)
         img_url = serializer.data["file"]
         segmentation, segmentation_info, model = predict_segmentation(img_url)
@@ -95,10 +95,7 @@ class GetDeepLearningImage(APIView):
             partial=True,
         )
 
-        if serializer.is_valid():
-            photo = serializer.save()
-            serializer = PhotoSerializer(photo)
-            print("save")
+        return Response(serializer.data)
 
 
 class GetBlurImage(APIView):
@@ -143,7 +140,4 @@ class GetBlurImage(APIView):
             partial=True,
         )
 
-        if serializer.is_valid():
-            photo = serializer.save()
-            serializer = PhotoSerializer(photo)
-            print("save")
+        return Response(serializer.data)
