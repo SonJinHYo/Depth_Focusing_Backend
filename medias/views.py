@@ -68,16 +68,16 @@ class GetSegmentation(APIView):
     def post(self, request):
         photo = Photo.objects.get(file=request.data["file"])
         serializer = PhotoSerializer(photo)
+        pk = serializer.data["pk"]
         img_url = serializer.data["file"]
         segmentation, segmentation_info, model = predict_segmentation(img_url)
-        draw_panoptic_segmentation(model, segmentation, segmentation_info)
+        draw_panoptic_segmentation(model, segmentation, segmentation_info,pk)
 
         # 프로토타입
         labels_len = len(segmentation_info)
 
-        ### numpy array pikle 형태로 인코딩후 binary filed에 저장
-
-        seg_url = ""
+        seg_arr = np.array(segmentation)
+        np.save(f"seg_arr_{pk}", seg_arr)
 
         one_time_url = requests.post(
             f"https://api.cloudflare.com/client/v4/accounts/{settings.CF_ID}/images/v2/direct_upload",
@@ -91,7 +91,7 @@ class GetSegmentation(APIView):
 
         r = requests.post(
             result.get("uploadURL"),
-            files={"file": open("segmentation.png", "rb")},
+            files={"file": open(f"segmentation_{pk}.png", "rb")},
         )
         result = r.json().get("result")
         seg_image_url = result.get("variants")
@@ -130,19 +130,19 @@ class GetBlurImage(APIView):
 
     def post(self, request):
         # 실행을 위한 코드
-        print(request.data)
-        return Response(
-            request.data,
-            status=status.HTTP_200_OK,
-        )
+        # print(request.data)
+        # return Response(
+        #     request.data,
+        #     status=status.HTTP_200_OK,
+        # )
 
         photo = Photo.objects.get(file=request.data["file"])
         serializer = PhotoSerializer(photo)
-        label = serializer.data["labels_len"]
+        pk = serializer.data["pk"]
+        label = request.data["label"]
         img_url = serializer.data["file"]
-        # np_bytes = base64.b64decode(serializer.data["segmentation"])
-        # segmentation = pickle.loads(np_bytes)
-        # bluring_img(img_url, label, segmentation)
+        segmentation = np.load(f'seg_arr_{pk}')
+        bluring_img(img_url, label, segmentation)
 
         one_time_url = requests.post(
             f"https://api.cloudflare.com/client/v4/accounts/{settings.CF_ID}/images/v2/direct_upload",
@@ -166,3 +166,15 @@ class GetBlurImage(APIView):
             {"blured_file": blured_image_url},
             partial=True,
         )
+
+        if serializer.is_valid():
+            photo = serializer.save()
+            serializer = PhotoSerializer(photo)
+            return Response(
+                serializer.data,
+                status=status.HTTP_200_OK,
+            )
+        else:
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST,
