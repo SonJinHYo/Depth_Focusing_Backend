@@ -39,7 +39,7 @@ def predict_segmentation(img_url):
     )
 
 
-def draw_panoptic_segmentation(model, segmentation, segments_info):
+def draw_panoptic_segmentation(model, segmentation, segments_info, pk):
     # get the used color map
     viridis = cm.get_cmap("viridis", torch.max(segmentation))
     fig, ax = plt.subplots()
@@ -63,6 +63,6 @@ def draw_panoptic_segmentation(model, segmentation, segments_info):
 
     plt.axis("off")
     plt.savefig(
-        "segmentation.png",
-        format="png",
+        f"segmentation_{pk}.png",
+        format="png",bbox_inches = 'tight',
     )
