@@ -1,5 +1,6 @@
 import numpy as np
 import requests
+import os
 
 from django.conf import settings
 
@@ -136,7 +137,7 @@ class GetBlurImage(APIView):
 
         img_url = serializer.data["file"]
         segmentation = np.load(f"seg_arr_{pk}.npy")
-        bluring_img(img_url, label, segmentation)
+        bluring_img(img_url, label, segmentation, pk)
 
         one_time_url = requests.post(
             f"https://api.cloudflare.com/client/v4/accounts/{settings.CF_ID}/images/v2/direct_upload",
@@ -150,7 +151,7 @@ class GetBlurImage(APIView):
 
         r = requests.post(
             result.get("uploadURL"),
-            files={"file": open("blured_image.png", "rb")},
+            files={"file": open(f"blured_image_{pk}.png", "rb")},
         )
         result = r.json().get("result")
         blured_image_url = result.get("variants")
@@ -160,6 +161,10 @@ class GetBlurImage(APIView):
             {"blured_file": blured_image_url},
             partial=True,
         )
+
+        os.remove(f"segmentation_{pk}.png")
+        os.remove(f"seg_arr_{pk}.npy")
+        os.remove(f"blured_image_{pk}.png")
 
         if serializer.is_valid():
             photo = serializer.save()

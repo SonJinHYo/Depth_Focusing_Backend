@@ -5,7 +5,7 @@ import requests
 import cv2
 
 
-def bluring_img(img_url, label, segmentation, blur_strength=1, split=100, size=45):
+def bluring_img(img_url, label, segmentation, pk, blur_strength=1, split=100, size=45):
     image = Image.open(requests.get(img_url, stream=True).raw)
     image = ImageOps.exif_transpose(image)  # 이미지 업로드시 회전되는 문제 해결
     image = Image.fromarray(np.array(image)[:, :, 0:3])
@@ -65,4 +65,4 @@ def bluring_img(img_url, label, segmentation, blur_strength=1, split=100, size=4
         )
     result_img = cv2.copyTo(image, label_mask, result_img)
 
-    Image.fromarray(result_img).save("blured_image.png")
+    Image.fromarray(result_img).save(f"blured_image_{pk}.png")
