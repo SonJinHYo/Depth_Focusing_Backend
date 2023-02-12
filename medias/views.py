@@ -18,7 +18,6 @@ from .bluring_img import bluring_img
 
 
 class PhotoDetail(APIView):
-
     permission_classes = [IsAuthenticated]
 
     def get_object(self, pk):
@@ -71,7 +70,7 @@ class GetSegmentation(APIView):
         pk = serializer.data["pk"]
         img_url = serializer.data["file"]
         segmentation, segmentation_info, model = predict_segmentation(img_url)
-        draw_panoptic_segmentation(model, segmentation, segmentation_info,pk)
+        draw_panoptic_segmentation(model, segmentation, segmentation_info, pk)
 
         # 프로토타입
         labels_len = len(segmentation_info)
@@ -129,13 +128,14 @@ class GetBlurImage(APIView):
             raise NotFound
 
     def post(self, request):
-
         photo = Photo.objects.get(seg_file=request.data["seg_file"])
         serializer = PhotoSerializer(photo)
         pk = serializer.data["pk"]
-        label = request.data["check_label_num"]
+        check_labels = request.data["check_labels"]["check_labels"]
+        label = check_labels.index(True)
+
         img_url = serializer.data["file"]
-        segmentation = np.load(f'seg_arr_{pk}.npy')
+        segmentation = np.load(f"seg_arr_{pk}.npy")
         bluring_img(img_url, label, segmentation)
 
         one_time_url = requests.post(
@@ -171,4 +171,5 @@ class GetBlurImage(APIView):
         else:
             return Response(
                 serializer.errors,
-                status=status.HTTP_400_BAD_REQUEST,)
+                status=status.HTTP_400_BAD_REQUEST,
+            )
