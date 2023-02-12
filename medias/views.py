@@ -177,4 +177,4 @@ class GetBlurImage(APIView):
         else:
             return Response(
                 serializer.errors,
-                status=status.HTTP_400_BAD_REQUEST,
+                status=status.HTTP_400_BAD_REQUEST,)
