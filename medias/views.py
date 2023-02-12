@@ -55,8 +55,6 @@ class GetUploadURL(APIView):
 
 
 class GetSegmentation(APIView):
-    permission_classes = [IsAuthenticated]
-
     def get_object(self, pk):
         try:
             return User.objects.get(pk=pk)
@@ -118,8 +116,6 @@ class GetSegmentation(APIView):
 
 
 class GetBlurImage(APIView):
-    permission_classes = [IsAuthenticated]
-
     def get_object(self, pk):
         try:
             return User.objects.get(pk=pk)
