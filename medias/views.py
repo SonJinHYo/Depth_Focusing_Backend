@@ -129,17 +129,11 @@ class GetBlurImage(APIView):
             raise NotFound
 
     def post(self, request):
-        # 실행을 위한 코드
-        # print(request.data)
-        # return Response(
-        #     request.data,
-        #     status=status.HTTP_200_OK,
-        # )
 
-        photo = Photo.objects.get(file=request.data["file"])
+        photo = Photo.objects.get(seg_file=request.data["seg_file"])
         serializer = PhotoSerializer(photo)
         pk = serializer.data["pk"]
-        label = request.data["label"]
+        label = request.data["check_label_num"]
         img_url = serializer.data["file"]
         segmentation = np.load(f'seg_arr_{pk}.npy')
         bluring_img(img_url, label, segmentation)
