@@ -141,7 +141,7 @@ class GetBlurImage(APIView):
         pk = serializer.data["pk"]
         label = request.data["label"]
         img_url = serializer.data["file"]
-        segmentation = np.load(f'seg_arr_{pk}')
+        segmentation = np.load(f'seg_arr_{pk}.npy')
         bluring_img(img_url, label, segmentation)
 
         one_time_url = requests.post(
@@ -177,4 +177,4 @@ class GetBlurImage(APIView):
         else:
             return Response(
                 serializer.errors,
-                status=status.HTTP_400_BAD_REQUEST,
+                status=status.HTTP_400_BAD_REQUEST,)
