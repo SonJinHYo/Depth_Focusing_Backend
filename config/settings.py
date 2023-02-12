@@ -58,7 +58,10 @@ SYSTEM_APPS = [
     "django.contrib.staticfiles",
 ]
 
-THIRD_APPS = ["rest_framework", "corsheaders"]
+THIRD_APPS = [
+    "rest_framework",
+    "corsheaders",
+]
 
 INSTALLED_APPS = SYSTEM_APPS + CUSTOM_APPS + THIRD_APPS
 
