@@ -32,9 +32,7 @@ class PhotoDetail(APIView):
         if photo.user and photo.user != request.user:
             raise PermissionDenied
         photo.delete()
-        return Response(
-            status=status.HTTP_200_OK,
-        )
+        return Response(status=status.HTTP_200_OK)
 
 
 class GetUploadURL(APIView):
