@@ -3,7 +3,7 @@
 set -o errexit
 pip install --upgrade pip
 
-poetry self update 1.2.2
+poetry self update 1.2.0
 poetry install
 pip install --force-reinstall -U setuptools
 python manage.py collectstatic --no-input
