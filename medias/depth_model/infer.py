@@ -66,7 +66,7 @@ class ToTensor(object):
 
 
 class InferenceHelper:
-    def __init__(self, dataset="nyu", device="cuda:0"):
+    def __init__(self, dataset="nyu", device="cpu"):
         self.toTensor = ToTensor()
         self.device = device
         if dataset == "nyu":
@@ -76,7 +76,8 @@ class InferenceHelper:
             model = UnetAdaptiveBins.build(
                 n_bins=256, min_val=self.min_depth, max_val=self.max_depth
             )
-            pretrained_path = "./pretrained/AdaBins_nyu.pt"
+            pretrained_path = "medias\depth_model\pretrained\AdaBins_nyu.pt"
+            print("nyu ok")
         elif dataset == "kitti":
             self.min_depth = 1e-3
             self.max_depth = 80

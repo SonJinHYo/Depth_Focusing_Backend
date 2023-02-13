@@ -128,7 +128,6 @@ class GetBlurImage(APIView):
         pk = serializer.data["pk"]
         check_labels = request.data["check_labels"]["check_labels"]
         label = check_labels.index(True)
-
         img_url = serializer.data["file"]
         segmentation = np.load(f"seg_arr_{pk}.npy")
         bluring_img(img_url, label, segmentation, pk)
@@ -149,10 +148,11 @@ class GetBlurImage(APIView):
         )
         result = r.json().get("result")
         blured_image_url = result.get("variants")
+        print(blured_image_url)
 
         serializer = PhotoSerializer(
             photo,
-            {"blured_file": blured_image_url},
+            data={"blured_file": blured_image_url[0]},
             partial=True,
         )
 
@@ -161,6 +161,7 @@ class GetBlurImage(APIView):
         os.remove(f"blured_image_{pk}.png")
 
         if serializer.is_valid():
+            print("seralizer ok")
             photo = serializer.save()
             serializer = PhotoSerializer(photo)
             return Response(
