@@ -15,7 +15,7 @@ from users.models import User
 from .models import Photo
 from .serializers import PhotoSerializer
 from .segmentation import predict_segmentation, draw_panoptic_segmentation
-from .bluring_img import bluring_img
+from .bluring_img import predit_depth, bluring_img
 
 
 class PhotoDetail(APIView):
@@ -73,7 +73,7 @@ class GetSegmentation(APIView):
         labels_len = len(segmentation_info)
 
         seg_arr = np.array(segmentation)
-        np.save(f"seg_arr_{pk}", seg_arr)
+        np.save(f"tmp/seg_arr_{pk}", seg_arr)
 
         one_time_url = requests.post(
             f"https://api.cloudflare.com/client/v4/accounts/{settings.CF_ID}/images/v2/direct_upload",
@@ -115,6 +115,20 @@ class GetSegmentation(APIView):
             )
 
 
+class GetDepthMap(APIView):
+    def post(self, request):
+        photo = Photo.objects.get(seg_file=request.data["seg_file"])
+        serializer = PhotoSerializer(photo)
+        pk = serializer.data["pk"]
+        img_url = serializer.data["file"]
+        
+        depth_map = predit_depth(img_url)
+        np.save(f"tmp/depth_map_{pk}",depth_map)
+        return Response(
+                serializer.data,
+                status=status.HTTP_200_OK,
+            )
+
 class GetBlurImage(APIView):
     def get_object(self, pk):
         try:
@@ -127,10 +141,14 @@ class GetBlurImage(APIView):
         serializer = PhotoSerializer(photo)
         pk = serializer.data["pk"]
         check_labels = request.data["check_labels"]["check_labels"]
+        strength = request.data["strength"]
+        size = request.data["blur_size"]
+        split = request.data["depth_split"]
         label = check_labels.index(True)
         img_url = serializer.data["file"]
-        segmentation = np.load(f"seg_arr_{pk}.npy")
-        bluring_img(img_url, label, segmentation, pk)
+        depth_map = np.load(f"tmp/depth_map_{pk}.npy")
+        segmentation = np.load(f"tmp/seg_arr_{pk}.npy")
+        bluring_img(img_url, label, segmentation, depth_map, pk, strength,split,size= size*2+1)
 
         one_time_url = requests.post(
             f"https://api.cloudflare.com/client/v4/accounts/{settings.CF_ID}/images/v2/direct_upload",
@@ -156,9 +174,8 @@ class GetBlurImage(APIView):
             partial=True,
         )
 
-        os.remove(f"segmentation_{pk}.png")
-        os.remove(f"seg_arr_{pk}.npy")
-        os.remove(f"blured_image_{pk}.png")
+        os.remove(f"tmp/segmentation_{pk}.png")
+        os.remove(f"tmp/blured_image_{pk}.png")
 
         if serializer.is_valid():
             print("seralizer ok")

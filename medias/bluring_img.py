@@ -5,7 +5,7 @@ import requests
 import cv2
 
 
-def bluring_img(img_url, label, segmentation, pk, blur_strength=1, split=100, size=45):
+def predit_depth(img_url):
     image = Image.open(requests.get(img_url, stream=True).raw)
     image = ImageOps.exif_transpose(image)  # 이미지 업로드시 회전되는 문제 해결
     image = Image.fromarray(np.array(image)[:, :, 0:3])
@@ -21,30 +21,28 @@ def bluring_img(img_url, label, segmentation, pk, blur_strength=1, split=100, si
             dsize=np.transpose(np.zeros(np.array(image).shape[:-1]), (1, 0)).shape,
         )
     )
+    return predicted_depth
+
+def bluring_img(img_url, label, segmentation, depth_map, pk, blur_strength=1, split=100, size=15):
+    image = Image.open(requests.get(img_url, stream=True).raw)
+    image = ImageOps.exif_transpose(image)  # 이미지 업로드시 회전되는 문제 해결
+    image = Image.fromarray(np.array(image)[:, :, 0:3])
 
     layer = []
-    depth_range = predicted_depth.max() - predicted_depth.min()
+    depth_range = depth_map.max() - depth_map.min()
     sep = depth_range / split
     img_index = np.where(segmentation == label)
-    # 임시 코드
+
     depth_sum = 0
     img_index = np.stack(img_index, axis=1)
     for r, c in img_index:
-        depth_sum += predicted_depth[r, c]
+        depth_sum += depth_map[r, c]
     depth_mean = depth_sum / len(img_index[:, 0])
-    # 원본 코드
-    # depth_sum = 0
-    # print(f"segmentation.shape : {segmentation.shape}")
-    # print(f"predicted_depth.shape : {predicted_depth.shape}")
-    # for i in range(len(img_index[0])):
-    #     depth_sum += predicted_depth[i][i]
-    # depth_mean = depth_sum / len(img_index[0])
 
     ### 포커싱 영역 마스크 저장
     label_mask = np.where(segmentation == label, 1, 0)
     label_mask = label_mask.astype(np.uint8)
 
-    image = np.array(image)
     result_img = np.zeros(image.shape)
     ### split 수 만큼 depth별로 영역 나누기 = layer
     ### 이미지 전체를 blur 처리 한 후에 해당 영역만 합성 진행
@@ -52,8 +50,8 @@ def bluring_img(img_url, label, segmentation, pk, blur_strength=1, split=100, si
     for k in range(split + 1):
         layer.append(
             np.where(
-                (predicted_depth >= predicted_depth.min() + sep * k)
-                & (predicted_depth < predicted_depth.min() + sep * (k + 1)),
+                (depth_map >= depth_map.min() + sep * k)
+                & (depth_map < depth_map.min() + sep * (k + 1)),
                 1,
                 0,
             )
@@ -64,7 +62,7 @@ def bluring_img(img_url, label, segmentation, pk, blur_strength=1, split=100, si
                 image,
                 (size, size),
                 abs(
-                    (k - int(predicted_depth.min() - depth_mean / sep))
+                    (k - int(depth_map.min() - depth_mean / sep))
                     / 15
                     * blur_strength
                 ),

@@ -63,6 +63,6 @@ def draw_panoptic_segmentation(model, segmentation, segments_info, pk):
 
     plt.axis("off")
     plt.savefig(
-        f"segmentation_{pk}.png",
+        f"tmp/segmentation_{pk}.png",
         format="png",bbox_inches = 'tight',
     )
