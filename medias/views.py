@@ -115,21 +115,66 @@ class GetSegmentation(APIView):
             )
 
 
-class GetDepthMap(APIView):
+class GetBlurImage(APIView):
     def post(self, request):
         photo = Photo.objects.get(seg_file=request.data["seg_file"])
         serializer = PhotoSerializer(photo)
         pk = serializer.data["pk"]
+        check_labels = request.data["check_labels"]["check_labels"]
+        strength = request.data["strength"]
+        size = request.data["blur_size"]
+        split = request.data["depth_split"]
+        label = check_labels.index(True)
         img_url = serializer.data["file"]
         
         depth_map = predit_depth(img_url)
+        segmentation = np.load(f"tmp/seg_arr_{pk}.npy")
         np.save(f"tmp/depth_map_{pk}",depth_map)
-        return Response(
+
+        bluring_img(img_url, label, segmentation, depth_map, pk, strength,split,size= size*2+1)
+        
+        one_time_url = requests.post(
+            f"https://api.cloudflare.com/client/v4/accounts/{settings.CF_ID}/images/v2/direct_upload",
+            headers={
+                "Authorization": f"Bearer {settings.CF_TOKEN}",
+            },
+        )
+
+        one_time_url = one_time_url.json()
+        result = one_time_url.get("result")
+
+        r = requests.post(
+            result.get("uploadURL"),
+            files={"file": open(f"blured_image_{pk}.png", "rb")},
+        )
+        result = r.json().get("result")
+        blured_image_url = result.get("variants")
+        print(blured_image_url)
+
+        serializer = PhotoSerializer(
+            photo,
+            data={"blured_file": blured_image_url[0]},
+            partial=True,
+        )
+
+        os.remove(f"tmp/segmentation_{pk}.png")
+        os.remove(f"tmp/blured_image_{pk}.png")
+
+        if serializer.is_valid():
+            print("seralizer ok")
+            photo = serializer.save()
+            serializer = PhotoSerializer(photo)
+            return Response(
                 serializer.data,
                 status=status.HTTP_200_OK,
             )
+        else:
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-class GetBlurImage(APIView):
+class GetBlurImageAgain(APIView):
     def get_object(self, pk):
         try:
             return User.objects.get(pk=pk)
