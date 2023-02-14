@@ -209,6 +209,7 @@ class GetBlurImageAgain(APIView):
         split = request.data["depth_split"]
         label = check_labels.index(True)
         img_url = serializer.data["file"]
+
         depth_map = np.load(f"tmp/depth_map_{pk}.npy")
         segmentation = np.load(f"tmp/seg_arr_{pk}.npy")
         bluring_img(

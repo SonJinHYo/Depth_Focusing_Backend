@@ -66,7 +66,7 @@ class ToTensor(object):
 
 
 class InferenceHelper:
-    def __init__(self, dataset="nyu", device="cpu"):
+    def __init__(self, dataset="nyu", device="cuda:0"):
         self.toTensor = ToTensor()
         self.device = device
         if dataset == "nyu":
@@ -90,10 +90,13 @@ class InferenceHelper:
             raise ValueError(
                 "dataset can be either 'nyu' or 'kitti' but got {}".format(dataset)
             )
-
+        print("111")
         model, _, _ = model_io.load_checkpoint(pretrained_path, model)
+        print("222")
         model.eval()
+        print("333")
         self.model = model.to(self.device)
+        print("444")
 
     @torch.no_grad()
     def predict_pil(self, pil_image, visualized=False):
