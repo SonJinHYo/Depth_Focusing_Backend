@@ -87,7 +87,7 @@ class GetSegmentation(APIView):
 
         r = requests.post(
             result.get("uploadURL"),
-            files={"file": open(f"segmentation_{pk}.png", "rb")},
+            files={"file": open(f"tmp/segmentation_{pk}.png", "rb")},
         )
         result = r.json().get("result")
         seg_image_url = result.get("variants")
@@ -126,13 +126,22 @@ class GetBlurImage(APIView):
         split = request.data["depth_split"]
         label = check_labels.index(True)
         img_url = serializer.data["file"]
-        
+
         depth_map = predit_depth(img_url)
         segmentation = np.load(f"tmp/seg_arr_{pk}.npy")
-        np.save(f"tmp/depth_map_{pk}",depth_map)
+        np.save(f"tmp/depth_map_{pk}", depth_map)
 
-        bluring_img(img_url, label, segmentation, depth_map, pk, strength,split,size= size*2+1)
-        
+        bluring_img(
+            img_url,
+            label,
+            segmentation,
+            depth_map,
+            pk,
+            strength,
+            split,
+            size=size * 2 + 1,
+        )
+
         one_time_url = requests.post(
             f"https://api.cloudflare.com/client/v4/accounts/{settings.CF_ID}/images/v2/direct_upload",
             headers={
@@ -174,6 +183,7 @@ class GetBlurImage(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+
 class GetBlurImageAgain(APIView):
     def get_object(self, pk):
         try:
@@ -193,7 +203,16 @@ class GetBlurImageAgain(APIView):
         img_url = serializer.data["file"]
         depth_map = np.load(f"tmp/depth_map_{pk}.npy")
         segmentation = np.load(f"tmp/seg_arr_{pk}.npy")
-        bluring_img(img_url, label, segmentation, depth_map, pk, strength,split,size= size*2+1)
+        bluring_img(
+            img_url,
+            label,
+            segmentation,
+            depth_map,
+            pk,
+            strength,
+            split,
+            size=size * 2 + 1,
+        )
 
         one_time_url = requests.post(
             f"https://api.cloudflare.com/client/v4/accounts/{settings.CF_ID}/images/v2/direct_upload",
