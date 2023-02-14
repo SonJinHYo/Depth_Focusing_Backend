@@ -75,4 +75,4 @@ def bluring_img(
         )
     result_img = cv2.copyTo(image, label_mask, result_img)
 
-    Image.fromarray(result_img).save(f"blured_image_{pk}.png")
+    Image.fromarray(result_img).save(f"tmp/blured_image_{pk}.png")
