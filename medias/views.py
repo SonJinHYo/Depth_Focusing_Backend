@@ -123,6 +123,7 @@ class GetBlurImage(APIView):
         print(request.data)
         print(request.data["check_labels"]["check_labels"])
         check_labels = request.data["check_labels"]["check_labels"]
+        label = check_labels.index(True)
         strength = request.data["strength"]
         size = request.data["blur_size"]
         split = request.data["depth_split"]
@@ -198,6 +199,7 @@ class GetBlurImageAgain(APIView):
         serializer = PhotoSerializer(photo)
         pk = serializer.data["pk"]
         check_labels = request.data["check_labels"]["check_labels"]
+        label = check_labels.index(True)
         strength = request.data["strength"]
         size = request.data["blur_size"]
         split = request.data["depth_split"]
