@@ -4,11 +4,10 @@ set -o errexit
 pip install --upgrade pip
 pip install gdown
 
-pwd
-whoami
-mkdir ./medias/depth_mothel/pretrained
+ls -al
+mkdir ./medias/depth_model/pretrained
 gdown https://drive.google.com/uc?id=1lvyZZbC9NLcS8a__YPcUP7rDiIpbRpoF
-mv AdaBins_nyu.pt ./medias/depth_mothel/pretrained/AdaBins_nyu.pt
+mv AdaBins_nyu.pt ./medias/depth_model/pretrained/AdaBins_nyu.pt
 
 git lfs install
 poetry install
