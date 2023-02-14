@@ -14,13 +14,16 @@ def predit_depth(img_url):
     infer_helper = InferenceHelper(dataset="nyu")
 
     # predict depth of a single pillow image
+    print(1)
     _, predicted_depth_resized = infer_helper.predict_pil(image_resized)
+    print(2)
     predicted_depth = np.array(
         cv2.resize(
             predicted_depth_resized[0][0],
             dsize=np.transpose(np.zeros(np.array(image).shape[:-1]), (1, 0)).shape,
         )
     )
+    print(3)
     return predicted_depth
 
 
@@ -72,4 +75,4 @@ def bluring_img(
         )
     result_img = cv2.copyTo(image, label_mask, result_img)
 
-    Image.fromarray(result_img).save(f"tmp/blured_image_{pk}.png")
+    Image.fromarray(result_img).save(f"blured_image_{pk}.png")

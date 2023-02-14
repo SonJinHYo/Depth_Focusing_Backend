@@ -99,17 +99,25 @@ class InferenceHelper:
     def predict_pil(self, pil_image, visualized=False):
         # pil_image = pil_image.resize((640, 480))
         img = np.asarray(pil_image) / 255.0
+        print(11)
 
         img = self.toTensor(img).unsqueeze(0).float().to(self.device)
+        print(12)
+
         bin_centers, pred = self.predict(img)
+        print(13)
 
         if visualized:
             viz = utils.colorize(
                 torch.from_numpy(pred).unsqueeze(0), vmin=None, vmax=None, cmap="magma"
             )
             # pred = np.asarray(pred*1000, dtype='uint16')
+            print(14)
             viz = Image.fromarray(viz)
+            print(15)
+
             return bin_centers, pred, viz
+        print(16)
         return bin_centers, pred
 
     @torch.no_grad()

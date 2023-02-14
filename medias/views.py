@@ -129,11 +129,13 @@ class GetBlurImage(APIView):
         split = request.data["depth_split"]
         label = check_labels.index(True)
         img_url = serializer.data["file"]
-        print(132)
         depth_map = predit_depth(img_url)
-        print(134)
+        print(4)
         segmentation = np.load(f"tmp/seg_arr_{pk}.npy")
+        print(5)
+
         np.save(f"tmp/depth_map_{pk}", depth_map)
+        print(6)
 
         bluring_img(
             img_url,
@@ -145,6 +147,7 @@ class GetBlurImage(APIView):
             split,
             size=size * 2 + 1,
         )
+        print(7)
 
         one_time_url = requests.post(
             f"https://api.cloudflare.com/client/v4/accounts/{settings.CF_ID}/images/v2/direct_upload",
