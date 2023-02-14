@@ -129,8 +129,9 @@ class GetBlurImage(APIView):
         split = request.data["depth_split"]
         label = check_labels.index(True)
         img_url = serializer.data["file"]
-
+        print(132)
         depth_map = predit_depth(img_url)
+        print(134)
         segmentation = np.load(f"tmp/seg_arr_{pk}.npy")
         np.save(f"tmp/depth_map_{pk}", depth_map)
 

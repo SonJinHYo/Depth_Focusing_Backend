@@ -27,6 +27,7 @@ torchvision = "^0.14.1"
 wandb = "^0.13.10"
 tqdm = "^4.64.1"
 opencv-python = "^4.7.0.68"
+gdown = "^4.6.3"
 
 [build-system]
 requires = ["poetry-core"]
