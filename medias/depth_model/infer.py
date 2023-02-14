@@ -76,7 +76,7 @@ class InferenceHelper:
             model = UnetAdaptiveBins.build(
                 n_bins=256, min_val=self.min_depth, max_val=self.max_depth
             )
-            pretrained_path = "medias\depth_model\pretrained\AdaBins_nyu.pt"
+            pretrained_path = "medias/depth_model/pretrained/AdaBins_nyu.pt"
             print("nyu ok")
         elif dataset == "kitti":
             self.min_depth = 1e-3
