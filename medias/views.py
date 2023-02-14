@@ -219,7 +219,6 @@ class GetBlurImageAgain(APIView):
             partial=True,
         )
 
-        os.remove(f"tmp/segmentation_{pk}.png")
         os.remove(f"tmp/blured_image_{pk}.png")
 
         if serializer.is_valid():
