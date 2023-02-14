@@ -42,7 +42,8 @@ def bluring_img(img_url, label, segmentation, depth_map, pk, blur_strength=1, sp
     ### 포커싱 영역 마스크 저장
     label_mask = np.where(segmentation == label, 1, 0)
     label_mask = label_mask.astype(np.uint8)
-
+    
+    image = np.array(image)
     result_img = np.zeros(image.shape)
     ### split 수 만큼 depth별로 영역 나누기 = layer
     ### 이미지 전체를 blur 처리 한 후에 해당 영역만 합성 진행
@@ -72,4 +73,4 @@ def bluring_img(img_url, label, segmentation, depth_map, pk, blur_strength=1, sp
         )
     result_img = cv2.copyTo(image, label_mask, result_img)
 
-    Image.fromarray(result_img).save(f"blured_image_{pk}.png")
+    Image.fromarray(result_img).save(f"tmp/blured_image_{pk}.png")
