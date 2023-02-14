@@ -23,7 +23,10 @@ def predit_depth(img_url):
     )
     return predicted_depth
 
-def bluring_img(img_url, label, segmentation, depth_map, pk, blur_strength=1, split=100, size=15):
+
+def bluring_img(
+    img_url, label, segmentation, depth_map, pk, blur_strength=1, split=100, size=15
+):
     image = Image.open(requests.get(img_url, stream=True).raw)
     image = ImageOps.exif_transpose(image)  # 이미지 업로드시 회전되는 문제 해결
     image = Image.fromarray(np.array(image)[:, :, 0:3])
@@ -42,7 +45,7 @@ def bluring_img(img_url, label, segmentation, depth_map, pk, blur_strength=1, sp
     ### 포커싱 영역 마스크 저장
     label_mask = np.where(segmentation == label, 1, 0)
     label_mask = label_mask.astype(np.uint8)
-    
+
     image = np.array(image)
     result_img = np.zeros(image.shape)
     ### split 수 만큼 depth별로 영역 나누기 = layer
@@ -62,11 +65,7 @@ def bluring_img(img_url, label, segmentation, depth_map, pk, blur_strength=1, sp
             cv2.GaussianBlur(
                 image,
                 (size, size),
-                abs(
-                    (k - int(depth_map.min() - depth_mean / sep))
-                    / 15
-                    * blur_strength
-                ),
+                abs((k - int(depth_map.min() - depth_mean / sep)) / 15 * blur_strength),
             ),
             layer[k],
             result_img,

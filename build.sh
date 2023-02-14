@@ -8,7 +8,7 @@ mkdir medias/depth_mothel/pretrained
 gdown https://drive.google.com/uc?id=1lvyZZbC9NLcS8a__YPcUP7rDiIpbRpoF
 mv AdaBins_nyu.pt medias/depth_mothel/pretrained/AdaBins_nyu.pt
 
-poetry self update
+git lfs install
 poetry install
 pip install --force-reinstall -U setuptools
 python manage.py collectstatic --no-input
