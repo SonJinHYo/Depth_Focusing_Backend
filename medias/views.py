@@ -154,7 +154,7 @@ class GetBlurImage(APIView):
 
         r = requests.post(
             result.get("uploadURL"),
-            files={"file": open(f"blured_image_{pk}.png", "rb")},
+            files={"file": open(f"tmp/blured_image_{pk}.png", "rb")},
         )
         result = r.json().get("result")
         blured_image_url = result.get("variants")
@@ -226,7 +226,7 @@ class GetBlurImageAgain(APIView):
 
         r = requests.post(
             result.get("uploadURL"),
-            files={"file": open(f"blured_image_{pk}.png", "rb")},
+            files={"file": open(f"tmp/blured_image_{pk}.png", "rb")},
         )
         result = r.json().get("result")
         blured_image_url = result.get("variants")
