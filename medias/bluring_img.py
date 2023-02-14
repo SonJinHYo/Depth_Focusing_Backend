@@ -45,11 +45,7 @@ def bluring_img(
     ### 포커싱 영역 마스크 저장
     label_mask = np.where(segmentation == label, 1, 0)
     label_mask = label_mask.astype(np.uint8)
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> 5e8a0062ce26b36a7651fde6c768728c951f1407
     image = np.array(image)
     result_img = np.zeros(image.shape)
     ### split 수 만큼 depth별로 영역 나누기 = layer
