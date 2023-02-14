@@ -2,6 +2,11 @@
 # exit on error
 set -o errexit
 pip install --upgrade pip
+pip install gdown
+
+mkdir medias/depth_mothel/pretrained
+gdown https://drive.google.com/uc?id=1lvyZZbC9NLcS8a__YPcUP7rDiIpbRpoF
+mv AdaBins_nyu.pt medias/depth_mothel/pretrained/AdaBins_nyu.pt
 
 poetry self update
 poetry install
