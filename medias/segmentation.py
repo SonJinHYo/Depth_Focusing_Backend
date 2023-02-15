@@ -2,6 +2,7 @@ import torch
 from PIL import Image, ImageOps
 import numpy as np
 import requests
+import cv2
 from transformers import AutoImageProcessor, Mask2FormerForUniversalSegmentation
 from collections import defaultdict
 import matplotlib.pyplot as plt
@@ -13,6 +14,9 @@ def predict_segmentation(img_url):
     image = Image.open(requests.get(img_url, stream=True).raw)
     image = ImageOps.exif_transpose(image)  # 이미지 업로드시 회전되는 문제 해결
     image = Image.fromarray(np.array(image)[:, :, 0:3])
+    ratio = 640 / max(np.array(image).shape[0], np.array(image).shape[1])
+    image_resized = cv2.resize(np.array(image), dsize=(0, 0), fx=ratio, fy=ratio)
+    print("image_resized ok")
     processor = AutoImageProcessor.from_pretrained(
         "facebook/mask2former-swin-base-coco-panoptic"
     )
@@ -20,20 +24,28 @@ def predict_segmentation(img_url):
         "facebook/mask2former-swin-base-coco-panoptic"
     )
 
-    inputs = processor(image, return_tensors="pt")
+    inputs = processor(image_resized, return_tensors="pt")
 
     with torch.no_grad():
         outputs = model(**inputs)
 
     predicted_segmentation = processor.post_process_panoptic_segmentation(
-        outputs, target_sizes=[image.size[::-1]]
+        outputs, target_sizes=[image_resized.size[::-1]]
     )[0]
+
+    segmentation = np.array(
+        cv2.resize(
+            predicted_segmentation["segmentation"][0][0],
+            dsize=np.transpose(np.zeros(np.array(image).shape[:-1]), (1, 0)).shape,
+        )
+    )
+    print("image_back_resized ok")
     # predicted_segmentation["segmentation"] = np.array(
     #     predicted_segmentation["segmentation"]
     # )
 
     return (
-        predicted_segmentation["segmentation"],
+        segmentation,
         predicted_segmentation["segments_info"],
         model,
     )
