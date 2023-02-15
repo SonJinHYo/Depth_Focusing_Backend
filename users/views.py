@@ -133,12 +133,20 @@ class GithubLogIn(APIView):
             except User.DoesNotExist:
                 print(user_data)
                 print(user_emails)
-                user = User.objects.create(
-                    username=user_data.get("login"),
-                    email=user_emails[0]["email"],
-                    name=user_data.get("name"),
-                    avatar=user_data.get("avatar_url"),
-                )
+                if user_data.get("name"):
+                    user = User.objects.create(
+                        username=user_data.get("login"),
+                        email=user_emails[0]["email"],
+                        name=user_data.get("name"),
+                        avatar=user_data.get("avatar_url"),
+                    )
+                else:
+                    user = User.objects.create(
+                        username=user_data.get("login"),
+                        email=user_emails[0]["email"],
+                        name="None",
+                        avatar=user_data.get("avatar_url"),
+                    )
                 print(9999)
 
                 user.set_unusable_password()
