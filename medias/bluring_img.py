@@ -68,7 +68,7 @@ def bluring_img(
             cv2.GaussianBlur(
                 image,
                 (size, size),
-                abs((k - int(depth_map.min() - depth_mean / sep)) / 15 * blur_strength),
+                abs((k - (depth_mean - depth_map.min()) // sep)) / 15 * blur_strength,
             ),
             layer[k],
             result_img,

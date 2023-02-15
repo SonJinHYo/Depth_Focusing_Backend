@@ -160,5 +160,5 @@ cython_debug/
 #.idea/
 
 # Custom
-medias\depth_model\pretrained
+medias/depth_model/pretrained
 tmp

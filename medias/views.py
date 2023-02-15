@@ -121,13 +121,10 @@ class GetBlurImage(APIView):
         serializer = PhotoSerializer(photo)
         pk = serializer.data["pk"]
         print(request.data)
-        print(request.data["check_labels"]["check_labels"])
-        check_labels = request.data["check_labels"]["check_labels"]
-        label = check_labels.index(True)
+        label = request.data["check_label"]
         strength = request.data["strength"]
         size = request.data["blur_size"]
         split = request.data["depth_split"]
-        label = check_labels.index(True)
         img_url = serializer.data["file"]
         depth_map = predit_depth(img_url)
         print(4)
@@ -202,12 +199,10 @@ class GetBlurImageAgain(APIView):
         photo = Photo.objects.get(seg_file=request.data["seg_file"])
         serializer = PhotoSerializer(photo)
         pk = serializer.data["pk"]
-        check_labels = request.data["check_labels"]["check_labels"]
-        label = check_labels.index(True)
+        label = request.data["check_label"]
         strength = request.data["strength"]
         size = request.data["blur_size"]
         split = request.data["depth_split"]
-        label = check_labels.index(True)
         img_url = serializer.data["file"]
 
         depth_map = np.load(f"tmp/depth_map_{pk}.npy")
