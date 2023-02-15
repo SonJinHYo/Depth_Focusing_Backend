@@ -13,6 +13,7 @@ from matplotlib import cm
 def predict_segmentation(img_url):
     image = Image.open(requests.get(img_url, stream=True).raw)
     image = ImageOps.exif_transpose(image)  # 이미지 업로드시 회전되는 문제 해결
+    print(np.array(image).shape)
     image = Image.fromarray(np.array(image)[:, :, 0:3])
     ratio = 640 / max(np.array(image).shape)
     image_resized = cv2.resize(np.array(image), dsize=(0, 0), fx=ratio, fy=ratio)
@@ -25,18 +26,25 @@ def predict_segmentation(img_url):
     )
 
     inputs = processor(image_resized, return_tensors="pt")
-    
+
     with torch.no_grad():
         outputs = model(**inputs)
-
+    print(image.size)
+    print((image_resized.shape[1], image_resized.shape[0]))
     predicted_segmentation = processor.post_process_panoptic_segmentation(
-        outputs, target_sizes=[image_resized.size[::-1]]
+        outputs, target_sizes=[(image_resized.shape[1], image_resized.shape[0])]
     )[0]
     print("predicted_segmentation ok")
-    print("predicted_segmentation shape :", np.array(predicted_segmentation["segmentation"]).shape)
+    print(
+        "predicted_segmentation shape :",
+        np.array(predicted_segmentation["segmentation"]).shape,
+    )
+    print(np.array(image).shape[:-1])
+    print(np.zeros(np.array(image).shape[:-1]), (1, 0))
+    print(np.transpose(np.zeros(np.array(image).shape[:-1]), (1, 0)).shape)
     segmentation = np.array(
         cv2.resize(
-            predicted_segmentation["segmentation"],
+            np.array(predicted_segmentation["segmentation"], dtype="uint8"),
             dsize=np.transpose(np.zeros(np.array(image).shape[:-1]), (1, 0)).shape,
         )
     )
@@ -54,7 +62,7 @@ def predict_segmentation(img_url):
 
 def draw_panoptic_segmentation(model, segmentation, segments_info, pk):
     # get the used color map
-    viridis = cm.get_cmap("viridis", torch.max(segmentation))
+    viridis = cm.get_cmap("viridis", np.max(segmentation))
     fig, ax = plt.subplots()
     ax.imshow(segmentation)
 
@@ -77,5 +85,6 @@ def draw_panoptic_segmentation(model, segmentation, segments_info, pk):
     plt.axis("off")
     plt.savefig(
         f"tmp/segmentation_{pk}.png",
-        format="png",bbox_inches = 'tight',
+        format="png",
+        bbox_inches="tight",
     )
