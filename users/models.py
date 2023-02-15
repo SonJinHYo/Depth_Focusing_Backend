@@ -7,6 +7,7 @@ class User(AbstractUser):
         max_length=150,
         editable=False,
     )
+
     last_name = models.CharField(
         max_length=150,
         editable=False,
