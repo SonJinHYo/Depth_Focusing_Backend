@@ -15,4 +15,5 @@
 ## 최종 결과
 - 사진의 특정 물체를 객체 분할을 통해 선택하고, 해당 물체의 깊이에 따라 해당 물체를 제외한 모든 것(배경 포함)들에 블러 처리를 해준다.
 
-##Frontend : https://github.com/SonJinHYo/Depth_Focusing_Frontend
+## Frontend : https://github.com/SonJinHYo/Depth_Focusing_Frontend
+## Site : https://depth-focusing.xyz
