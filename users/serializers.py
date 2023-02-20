@@ -20,7 +20,6 @@ class PrivateUserSerializer(ModelSerializer):
         exclude = (
             "password",
             "is_superuser",
-            "id",
             "is_staff",
             "is_active",
             "first_name",
