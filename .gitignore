@@ -162,3 +162,4 @@ cython_debug/
 # Custom
 medias/depth_model/pretrained
 tmp
+poetry.lock

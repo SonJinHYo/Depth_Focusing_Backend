@@ -14,6 +14,8 @@ from pathlib import Path
 import os
 import environ
 import dj_database_url
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 env = environ.Env()
 
@@ -190,3 +192,13 @@ CF_TOKEN = env("CF_TOKEN")
 if not DEBUG:
     SESSION_COOKIE_DOMAIN = ".depth-focusing.xyz"
     CSRF_COOKIE_DOMAIN = ".depth-focusing.xyz"
+
+if not DEBUG:
+    sentry_sdk.init(
+        dsn="https://6d8a5d545a9a4a42aebd980bdf76f2ea@o4504632807456768.ingest.sentry.io/4504711025328128",
+        integrations=[
+            DjangoIntegration(),
+        ],
+        traces_sample_rate=1.0,
+        send_default_pii=True,
+    )
