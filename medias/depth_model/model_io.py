@@ -35,20 +35,16 @@ def load_weights(model, filename, path="./saved_models"):
 
 
 def load_checkpoint(fpath, model, optimizer=None):
-    print("11")
     ckpt = torch.load(fpath, map_location="cpu")
-    print("12")
 
     if optimizer is None:
         optimizer = ckpt.get("optimizer", None)
     else:
         optimizer.load_state_dict(ckpt["optimizer"])
     epoch = ckpt["epoch"]
-    print("13")
 
     if "model" in ckpt:
         ckpt = ckpt["model"]
-    print("14")
 
     load_dict = {}
     for k, v in ckpt.items():
@@ -57,7 +53,6 @@ def load_checkpoint(fpath, model, optimizer=None):
             load_dict[k_] = v
         else:
             load_dict[k] = v
-    print("15")
 
     modified = {}  # backward compatibility to older naming of architecture blocks
     for k, v in load_dict.items():
@@ -77,9 +72,7 @@ def load_checkpoint(fpath, model, optimizer=None):
             # del load_dict[k]
         else:
             modified[k] = v  # else keep the original
-    print("16")
 
     model.load_state_dict(modified)
-    print("17")
 
     return model, optimizer, epoch

@@ -77,7 +77,6 @@ class InferenceHelper:
                 n_bins=256, min_val=self.min_depth, max_val=self.max_depth
             )
             pretrained_path = "medias/depth_model/pretrained/AdaBins_nyu.pt"
-            print("nyu ok")
         elif dataset == "kitti":
             self.min_depth = 1e-3
             self.max_depth = 80
@@ -90,37 +89,25 @@ class InferenceHelper:
             raise ValueError(
                 "dataset can be either 'nyu' or 'kitti' but got {}".format(dataset)
             )
-        print("111")
         model, _, _ = model_io.load_checkpoint(pretrained_path, model)
-        print("222")
         model.eval()
-        print("333")
         self.model = model.to(self.device)
-        print("444")
 
     @torch.no_grad()
     def predict_pil(self, pil_image, visualized=False):
         # pil_image = pil_image.resize((640, 480))
         img = np.asarray(pil_image) / 255.0
-        print(11)
-
         img = self.toTensor(img).unsqueeze(0).float().to(self.device)
-        print(12)
-
         bin_centers, pred = self.predict(img)
-        print(13)
 
         if visualized:
             viz = utils.colorize(
                 torch.from_numpy(pred).unsqueeze(0), vmin=None, vmax=None, cmap="magma"
             )
             # pred = np.asarray(pred*1000, dtype='uint16')
-            print(14)
             viz = Image.fromarray(viz)
-            print(15)
 
             return bin_centers, pred, viz
-        print(16)
         return bin_centers, pred
 
     @torch.no_grad()

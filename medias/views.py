@@ -91,7 +91,6 @@ class GetSegmentation(APIView):
         )
         result = r.json().get("result")
         seg_image_url = result.get("variants")
-        print(f"seg_image_url: {seg_image_url}")
 
         serializer = PhotoSerializer(
             photo,
@@ -120,19 +119,15 @@ class GetBlurImage(APIView):
         photo = Photo.objects.get(seg_file=request.data["seg_file"])
         serializer = PhotoSerializer(photo)
         pk = serializer.data["pk"]
-        print(request.data)
         label = request.data["check_label"]
         strength = request.data["strength"]
         size = request.data["blur_size"]
         split = request.data["depth_split"]
         img_url = serializer.data["file"]
         depth_map = predit_depth(img_url)
-        print(4)
         segmentation = np.load(f"tmp/seg_arr_{pk}.npy")
-        print(5)
 
         np.save(f"tmp/depth_map_{pk}", depth_map)
-        print(6)
 
         bluring_img(
             img_url,
@@ -144,7 +139,6 @@ class GetBlurImage(APIView):
             split,
             size=size * 2 + 1,
         )
-        print(7)
 
         one_time_url = requests.post(
             f"https://api.cloudflare.com/client/v4/accounts/{settings.CF_ID}/images/v2/direct_upload",
@@ -162,7 +156,6 @@ class GetBlurImage(APIView):
         )
         result = r.json().get("result")
         blured_image_url = result.get("variants")
-        print(blured_image_url)
 
         serializer = PhotoSerializer(
             photo,
@@ -174,7 +167,6 @@ class GetBlurImage(APIView):
         os.remove(f"tmp/blured_image_{pk}.png")
 
         if serializer.is_valid():
-            print("seralizer ok")
             photo = serializer.save()
             serializer = PhotoSerializer(photo)
             return Response(
@@ -234,7 +226,6 @@ class GetBlurImageAgain(APIView):
         )
         result = r.json().get("result")
         blured_image_url = result.get("variants")
-        print(blured_image_url)
 
         serializer = PhotoSerializer(
             photo,
@@ -245,7 +236,6 @@ class GetBlurImageAgain(APIView):
         os.remove(f"tmp/blured_image_{pk}.png")
 
         if serializer.is_valid():
-            print("seralizer ok")
             photo = serializer.save()
             serializer = PhotoSerializer(photo)
             return Response(

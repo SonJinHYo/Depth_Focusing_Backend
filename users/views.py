@@ -96,15 +96,11 @@ class GithubLogIn(APIView):
     def post(self, request):
         try:
             code = request.data.get("code")
-            print(1111)
             access_token = requests.post(
                 f"https://github.com/login/oauth/access_token?code={code}&client_id=ebcdd8344911fca9bd1d&client_secret={settings.GH_SECRET}",
                 headers={"Accept": "application/json"},
             )
-            print(2222)
-
             access_token = access_token.json().get("access_token")
-            print(3333)
             user_data = requests.get(
                 "https://api.github.com/user",
                 headers={
@@ -112,9 +108,7 @@ class GithubLogIn(APIView):
                     "Accept": "application/json",
                 },
             )
-            print(4444)
             user_data = user_data.json()
-            print(5555)
             user_emails = requests.get(
                 "https://api.github.com/user/emails",
                 headers={
@@ -122,17 +116,12 @@ class GithubLogIn(APIView):
                     "Accept": "application/json",
                 },
             )
-            print(6666)
             user_emails = user_emails.json()
-            print(7777)
             try:
                 user = User.objects.get(email=user_emails[0]["email"])
-                print(8888)
                 login(request, user)
                 return Response(status=status.HTTP_200_OK)
             except User.DoesNotExist:
-                print(user_data)
-                print(user_emails)
                 if user_data.get("name"):
                     user = User.objects.create(
                         username=user_data.get("login"),
@@ -147,15 +136,10 @@ class GithubLogIn(APIView):
                         name="None",
                         avatar=user_data.get("avatar_url"),
                     )
-                print(9999)
-
                 user.set_unusable_password()
-                print(11111)
                 user.save()
-                print(22222)
 
                 login(request, user)
-                print(33333)
                 return Response(status=status.HTTP_200_OK)
         except Exception:
             return Response(status=status.HTTP_400_BAD_REQUEST)
